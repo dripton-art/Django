@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ post.title }}</h1>
+    <p class="post-meta">By {{ post.author }} on {{ post.created_at|date:"F j, Y" }}</p>
+    <div class="post-content">{{ post.content|linebreaks }}</div>
+
+    {% if user == post.author %}
+        <div class="post-actions">
+            <a class="btn btn-secondary" href="{% url 'post_update' post.pk %}">Edit</a>
+            <a class="btn btn-danger" href="{% url 'post_delete' post.pk %}">Delete</a>
+        </div>
+    {% endif %}
+
+    <hr>
+
+    <!-- COMMENTS SECTION -->
+    <h3>Comments ({{ post.comments.count }})</h3>
+    {% for comment in post.comments.all %}
+        <div class="comment">
+            <p><strong>{{ comment.author }}</strong> said:</p>
+            <p>{{ comment.content|linebreaks }}</p>
+            <p class="comment-meta">{{ comment.created_at|date:"F j, Y, g:i a" }}</p>
+            <a href="{% url 'comment_detail' comment.pk %}">View comment</a>
+
+
+            {% if user == comment.author %}
+                <a href="{% url 'comment_update' comment.pk %}">Edit</a> |
+                <a href="{% url 'comment_delete' comment.pk %}">Delete</a>
+            {% endif %}
+        </div>
+        <hr>
+    {% empty %}
+        <p>No comments yet. Be the first to comment!</p>
+    {% endfor %}
+
+    <!-- ADD COMMENT FORM -->
+    {% if user.is_authenticated %}
+        <h4>Leave a Comment</h4>
+        <form action="{% url 'comment_create' post.pk %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Post Comment</button>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to leave a comment.</p>
+    {% endif %}
+
+    <a class="btn btn-light mt-3" href="{% url 'home' %}">&larr; Back to All Posts</a>
+</div>
+<div>
+    <small>Tags:
+        {% for tag in post.tags.all %}
+            <a href="{% url 'posts_by_tag' tag.slug %}">{{ tag.name }}</a>{% if not forloop.last %}, {% endif %}
+        {% empty %}
+            No tags
+        {% endfor %}
+    </small>
+</div>
+  
+{% endblock %}

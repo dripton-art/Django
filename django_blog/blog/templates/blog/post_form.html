@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}{% if form.instance.pk %}Edit Post{% else %}New Post{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{% if form.instance.pk %}Edit Post{% else %}Create New Post{% endif %}</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary">
+            {% if form.instance.pk %}Update{% else %}Publish{% endif %}
+        </button>
+        <a class="btn btn-light" href="{% url 'home' %}">Cancel</a>
+    </form>
+</div>
+{% endblock %}
